@@ -19,6 +19,7 @@ namespace ICSharpCode.TextEditor
 	public class TextAreaClipboardHandler
 	{
 		TextArea textArea;
+		string myClipBoard;
 		
 		public bool EnableCut {
 			get {
@@ -120,7 +121,7 @@ namespace ICSharpCode.TextEditor
 			// Best reproducable inside Virtual PC.
 			int version = unchecked(++SafeSetClipboardDataVersion);
 			try {
-				Clipboard.SetDataObject(dataObject, true);
+				Clipboard.SetDataObject(dataObject);
 			} catch (ExternalException) {
 				Timer timer = new Timer();
 				timer.Interval = 100;
@@ -139,6 +140,7 @@ namespace ICSharpCode.TextEditor
 
 		bool CopyTextToClipboard(string stringToCopy)
 		{
+			this.myClipBoard = stringToCopy;
 			return CopyTextToClipboard(stringToCopy, false);
 		}
 		
@@ -196,8 +198,10 @@ namespace ICSharpCode.TextEditor
 					if (data == null)
 						return;
 					bool fullLine = data.GetDataPresent(LineSelectedType);
-					if (data.GetDataPresent(DataFormats.UnicodeText)) {
-						string text = (string)data.GetData(DataFormats.UnicodeText);
+					// if (data.GetDataPresent(DataFormats.UnicodeText)) {
+					if (this.myClipBoard != null) {
+						// string text = (string)data.GetData(DataFormats.UnicodeText);
+						string text = this.myClipBoard;
 						// we got NullReferenceExceptions here, apparently the clipboard can contain null strings
 						if (!string.IsNullOrEmpty(text)) {
 							textArea.Document.UndoStack.StartUndoGroup();
